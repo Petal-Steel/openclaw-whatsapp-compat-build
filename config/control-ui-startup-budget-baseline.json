@@ -1,5 +1,5 @@
 {
-  "startupJsGzipBytes": 316249,
-  "reason": "Defer placement and mobile sharing content; refreshed against main 2d4e8dea",
+  "startupJsGzipBytes": 315852,
+  "reason": "Defer header session and sharing menus; retain Settings-only copy behind Settings",
   "updatedAt": "2026-10-22"
 }

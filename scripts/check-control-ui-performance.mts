@@ -56,9 +56,8 @@ const controlUiPerformanceBudgets = {
   startupJsRequests: 9,
   chatBootJsRequests: 27,
   newBootJsRequests: 22,
-  // Deferred placement/sharing and idle decoration: 1,442,581 B Chat and
-  // 986,694 B New Session, retaining the previous relative headroom.
-  chatBootJsGzipBytes: 1_498_849,
+  // Retain the tighter approved caps from the header and placement deferrals.
+  chatBootJsGzipBytes: 1_477_812,
   newBootJsGzipBytes: 1_002_051,
   startupCssRequests: 1,
   // Solid 2 action/optimistic runtime adoption; offset tracked by HF-STARTUP-BUDGET.
