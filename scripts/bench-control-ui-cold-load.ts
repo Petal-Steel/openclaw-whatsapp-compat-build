@@ -915,8 +915,9 @@ try {
           .waitFor({ state: "visible" });
       }
       await page
-        .locator('.sidebar-rail [data-sidebar-entry^="session:"]')
-        .nth(fixture.counts.pinned - 1)
+        .locator(
+          `[data-session-section="pinned"] [data-session-key="${fixture.pinnedKeys.at(-1)}"]`,
+        )
         .waitFor({ state: "attached" });
       await page.locator('[data-sidebar-entry="plugin:team-scale-7/overview"]').waitFor();
       if (sidebarView === "online") {

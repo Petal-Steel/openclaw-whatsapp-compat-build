@@ -56,7 +56,7 @@ and `presentation.firstEnabledComposerMs` from visible DOM observed on animation
 frames; these are readiness observations, not compositor paint timestamps.
 Keep profiling and the optional warm-reload probes out of this timing run.
 
-`pnpm ui:check-performance -- --module-attribution --dist <build>` ranks the top
+`pnpm ui:check-performance --module-attribution --dist <build>` ranks the top
 30 emitted JavaScript modules in each route's preload graph. Add `--json` for all
 modules and mapping coverage. It gzips source-mapped generated ranges independently,
 so those scores identify expensive modules but are not additive transfer costs;
