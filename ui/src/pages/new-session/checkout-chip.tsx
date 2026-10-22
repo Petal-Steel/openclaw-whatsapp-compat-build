@@ -1,6 +1,5 @@
-import { Errored, lazy, Loading } from "solid-js";
+import { lazy } from "solid-js";
 import { Icon } from "../../components/solid/icon.tsx";
-import { LazyViewError } from "../../components/solid/lazy-view-error.tsx";
 import type { PopoverHandle } from "../../components/solid/popover.tsx";
 import { t } from "../../lib/reactive/i18n.ts";
 import type { resolveCheckoutChip } from "./checkout-chip.ts";
@@ -40,22 +39,16 @@ export function CheckoutChip(props: {
         }
       }}
     >
-      <Errored
-        fallback={(error, retry) => <LazyViewError error={error()} onRetry={retry} inline />}
-      >
-        <Loading fallback={<div role="status">{t("common.loading")}</div>}>
-          <CheckoutPickerContent
-            params={props.params}
-            folderLabel={props.folderLabel}
-            onClose={() => popover.hide()}
-            onConfirm={() => {
-              if (popover.hide()) {
-                confirmPending = true;
-              }
-            }}
-          />
-        </Loading>
-      </Errored>
+      <CheckoutPickerContent
+        params={props.params}
+        folderLabel={props.folderLabel}
+        onClose={() => popover.hide()}
+        onConfirm={() => {
+          if (popover.hide()) {
+            confirmPending = true;
+          }
+        }}
+      />
     </SessionPicker>
   );
 }

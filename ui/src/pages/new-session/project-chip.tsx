@@ -1,6 +1,5 @@
-import { Errored, lazy, Loading } from "solid-js";
+import { lazy } from "solid-js";
 import { Icon } from "../../components/solid/icon.tsx";
-import { LazyViewError } from "../../components/solid/lazy-view-error.tsx";
 import { t } from "../../lib/reactive/i18n.ts";
 import type { ProjectBrowserFocus } from "./draft-place-browser.ts";
 import { SessionPicker } from "./picker.tsx";
@@ -31,18 +30,12 @@ export function ProjectChip(props: ProjectChipProps) {
       triggerAttributes={{ "data-project-id": props.params.place.browser.projectId || undefined }}
       params={props.params}
     >
-      <Errored
-        fallback={(error, retry) => <LazyViewError error={error()} onRetry={retry} inline />}
-      >
-        <Loading fallback={<div role="status">{t("common.loading")}</div>}>
-          <ProjectPickerContent
-            params={props.params}
-            state={props.state}
-            nativeTerminal={props.nativeTerminal}
-            focus={props.focus}
-          />
-        </Loading>
-      </Errored>
+      <ProjectPickerContent
+        params={props.params}
+        state={props.state}
+        nativeTerminal={props.nativeTerminal}
+        focus={props.focus}
+      />
     </SessionPicker>
   );
 }

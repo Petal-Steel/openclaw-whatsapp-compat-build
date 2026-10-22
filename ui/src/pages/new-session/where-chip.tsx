@@ -1,7 +1,6 @@
-import { createMemo, Errored, lazy, Loading } from "solid-js";
+import { createMemo, lazy } from "solid-js";
 import { resolveCloudProfileIconData } from "../../components/provider-icon-data.ts";
 import { Icon } from "../../components/solid/icon.tsx";
-import { LazyViewError } from "../../components/solid/lazy-view-error.tsx";
 import type { PopoverHandle } from "../../components/solid/popover.tsx";
 import { CloudProfileIcon } from "../../components/solid/provider-icon.tsx";
 import { t } from "../../lib/reactive/i18n.ts";
@@ -102,13 +101,7 @@ export function WhereChip(props: WhereChipProps) {
       }}
       params={props.params}
     >
-      <Errored
-        fallback={(error, retry) => <LazyViewError error={error()} onRetry={retry} inline />}
-      >
-        <Loading fallback={<div role="status">{t("common.loading")}</div>}>
-          <WherePickerContent params={props.params} state={props.state} onReady={focusSearch} />
-        </Loading>
-      </Errored>
+      <WherePickerContent params={props.params} state={props.state} onReady={focusSearch} />
     </SessionPicker>
   );
 }
