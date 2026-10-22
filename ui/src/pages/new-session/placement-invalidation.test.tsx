@@ -52,7 +52,7 @@ it("retains environment heading and device artwork through unrelated refreshes",
   expect(row.querySelector('[data-form="laptop"]')).not.toBeNull();
 });
 
-it("retains project artwork while current labels and selection remain live", () => {
+it("retains project artwork while current labels and selection remain live", async () => {
   const projects = [
     {
       id: "sample",
@@ -96,6 +96,9 @@ it("retains project artwork while current labels and selection remain live", () 
   };
   const [current, setCurrent] = createSignal(params);
   const view = mountSolid(() => <ProjectChip {...current()} />);
+  await waitForSolid(() =>
+    expect(view.container.querySelector('[data-value="project:sample"]')).not.toBeNull(),
+  );
   const row = view.container.querySelector('[data-value="project:sample"]')!;
   const icon = row.querySelector(".session-menu__icon svg");
   const observer = new MutationObserver(() => {});

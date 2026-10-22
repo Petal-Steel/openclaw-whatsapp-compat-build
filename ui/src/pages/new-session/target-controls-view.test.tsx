@@ -137,12 +137,13 @@ it.each([
   { name: "WebKit IME Enter", writable: true, advertised: true, enter: true, composing: "end" },
   { name: "read-only Enter", writable: false, advertised: true, enter: true },
   { name: "unadvertised create", writable: true, advertised: false, enter: true },
-])("gates pasted Git URL selection for $name", ({ writable, advertised, enter, composing }) => {
+])("gates pasted Git URL selection for $name", async ({ writable, advertised, enter, composing }) => {
   const cloneUrl = "https://github.com/openclaw/openclaw.git";
   const f = createDraftFixture({
     scopes: ["operator.sessions.read", ...(writable ? ["operator.sessions.write"] : [])],
     methods: ["projects.add", ...(advertised ? ["sessions.create"] : [])],
   });
+  f.place.browser.popoverCallbacks("project").onPopoverShow();
   f.place.browser.changeProjectQuery(cloneUrl);
   const { container } = mountSolid(() => (
     <NewSessionPlaceControls
@@ -160,6 +161,9 @@ it.each([
       }}
     />
   ));
+  await waitForSolid(() =>
+    expect(container.querySelector(".new-session-page__project-search input")).not.toBeNull(),
+  );
   const available = writable && advertised;
   const clone = container.querySelector<HTMLButtonElement>('[data-value="project-clone-url"]');
   expect(clone !== null).toBe(available);
