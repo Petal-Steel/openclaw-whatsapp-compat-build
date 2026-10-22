@@ -179,13 +179,9 @@ export function ProjectPickerContent(props: ProjectChipProps) {
     // Retired catalogs clear immediately; a live refresh keeps local filtering responsive.
     const accepted = !props.nativeTerminal && projectsReady() ? projects() : [];
     const query = view().query.toLowerCase();
+    // Match the visible name, not shared Git owners or parent checkout directories.
     return query
-      ? accepted.filter((project) =>
-          [project.displayName, project.originUrl ?? "", project.repoRoot ?? ""]
-            .join("\n")
-            .toLowerCase()
-            .includes(query),
-        )
+      ? accepted.filter((project) => project.displayName.toLowerCase().includes(query))
       : accepted;
   });
   const projectSearchRead = createMemo(() => props.params.place.browser.projectSearchRead);

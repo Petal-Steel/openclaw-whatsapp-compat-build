@@ -434,7 +434,6 @@ export function WherePickerContent(
               onSelectOs: (id) => selectCloudOption("os", id),
               onSelectMachine: (id) => selectCloudOption("machine", id),
               submitting: busy(),
-              compact: true,
               disabled: Boolean(view().cloudDisabledReason),
               disabledReason: view().cloudDisabledReason,
               profileDisabledReason: (profile) =>
