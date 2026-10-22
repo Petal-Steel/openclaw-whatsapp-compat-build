@@ -1969,7 +1969,16 @@ try {
       overlays,
     };
     results.push(result);
-    console.log(JSON.stringify(result));
+    // The preview server shares this process; keep full result serialization
+    // after the measured runs, in summary.json.
+    console.log(
+      JSON.stringify({
+        run: result.run,
+        variant: result.variant,
+        hostLoadAverage,
+        presentation: result.presentation,
+      }),
+    );
   }
   if (errors.length) {
     throw new Error(`Browser errors: ${errors.join("\n")}`);

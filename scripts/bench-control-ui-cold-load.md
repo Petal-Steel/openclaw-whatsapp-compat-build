@@ -55,6 +55,8 @@ each build's own warm state. Every run records `presentation.firstNonemptyTransc
 and `presentation.firstEnabledComposerMs` from visible DOM observed on animation
 frames; these are readiness observations, not compositor paint timestamps.
 Keep profiling and the optional warm-reload probes out of this timing run.
+Console progress contains readiness and host load; full RPC and resource records
+are serialized to `summary.json` after all runs, outside the preview-server workload.
 
 `pnpm ui:check-performance --module-attribution --dist <build>` ranks the top
 30 emitted JavaScript modules in each route's preload graph. Add `--json` for all
