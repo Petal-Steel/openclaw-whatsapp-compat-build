@@ -56,10 +56,10 @@ const controlUiPerformanceBudgets = {
   startupJsRequests: 9,
   chatBootJsRequests: 26,
   newBootJsRequests: 21,
-  // Closed dialog deferrals: 1,413,139 B Chat and 950,549 B New Session.
+  // Closed dialog deferrals: 1,413,224 B Chat and 950,338 B New Session.
   // Preserve each route's relative headroom against its measured merge base.
-  chatBootJsGzipBytes: 1_467_165,
-  newBootJsGzipBytes: 964_227,
+  chatBootJsGzipBytes: 1_466_731,
+  newBootJsGzipBytes: 963_768,
   startupCssRequests: 1,
   // Solid 2 action/optimistic runtime adoption; offset tracked by HF-STARTUP-BUDGET.
   startupJsGzipBytes: 325_081,
