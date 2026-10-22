@@ -124,7 +124,8 @@ function renderRecentSessionRow(params: RecentSessionParams) {
       requiredScope: "operator.write",
     }),
   );
-  const rowDraggable = createMemo(() => groupWriteAccess().allowed);
+  // Personal pins and rail shortcuts do not mutate shared session groups.
+  const rowDraggable = createMemo(() => pinnable() || groupWriteAccess().allowed);
   const marqueeLabelTemplate = () => {
     const teamValue = team();
     const labelValue = label();

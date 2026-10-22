@@ -82,23 +82,29 @@ describe("AppSidebar section reordering", () => {
     return { sidebar, harness, section, header, moveSection };
   }
 
-  it("disables section and row dragging without group write access", async () => {
+  it("allows personal session drags but blocks shared group changes without group write access", async () => {
     const { sidebar, harness, header, section } = await mountWithGroups(["Alpha"], [], {
       scopes: ["operator.read"],
     });
     const source = header("category:Alpha");
-    const row = sidebar.querySelector('[data-session-key="agent:main:plain"]');
+    const row = sidebar.querySelector('[data-session-key="agent:main:plain"]')!;
 
     expect(source.getAttribute("draggable")).toBe("false");
     expect(source.getAttribute("title")).toBeTruthy();
-    expect(row?.getAttribute("draggable")).toBe("false");
-    expect(row?.hasAttribute("title")).toBe(false);
+    expect(row.getAttribute("draggable")).toBe("true");
+    expect(row.hasAttribute("title")).toBe(false);
 
     const dataTransfer = createDataTransferStub();
     dispatchDragEvent(source, "dragstart", dataTransfer);
     dispatchDragEvent(section("ungrouped"), "drop", dataTransfer);
 
     expect(dataTransfer.types).toEqual([]);
+
+    dispatchDragEvent(row, "dragstart", dataTransfer);
+    expect(dataTransfer.types).not.toEqual([]);
+    dispatchDragEvent(section("category:Alpha"), "dragover", dataTransfer);
+    dispatchDragEvent(section("category:Alpha"), "drop", dataTransfer);
+    expect(harness.sessions.patch).not.toHaveBeenCalled();
     expect(harness.groupsPut).not.toHaveBeenCalled();
   });
 
