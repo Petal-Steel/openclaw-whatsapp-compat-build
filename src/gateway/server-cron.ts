@@ -131,8 +131,7 @@ export function buildGatewayCronService(params: {
     scheduledGatewayContextResolver,
     params.resolvePluginRegistry,
   );
-  const env = params.env ?? process.env;
-  const storePath = params.storePath;
+  const { storePath, env = process.env } = params;
   const cronEnabled =
     env.OPENCLAW_SKIP_CRON !== "1" && (params.cfg.cron?.enabled ?? DEFAULT_CRON_ENABLED);
   const hostExecutionDisabled = isTruthyEnvValue(env.OPENCLAW_DISABLE_CRON_HOST_EXECUTION);
@@ -355,7 +354,7 @@ export function buildGatewayCronService(params: {
     const revision = ++legacyProjectionRevision;
     const cfg = getRuntimeConfig();
     try {
-      const jobs = await readHeartbeatSummarySnapshot(cfg);
+      const jobs = await readHeartbeatSummarySnapshot(cfg, storePath);
       if (
         legacyProjectionClosed ||
         revision !== legacyProjectionRevision ||
@@ -377,7 +376,7 @@ export function buildGatewayCronService(params: {
       await Promise.all([
         reconcileExitWatchers(),
         reconcileStreamWatchers(),
-        refreshLegacyMonitorProjection(),
+        started ? refreshLegacyMonitorProjection() : undefined,
       ]);
     },
     isExecutionIdle: (job, ownSessionKey, ownReplyOperation) => {
@@ -436,6 +435,7 @@ export function buildGatewayCronService(params: {
     deferSessionEvent,
     runIsolatedAgentJob: createGatewayCronAgentJobRunner({
       deps: params.deps,
+      storePath,
       resolveCronAgent,
       resolveGatewayContext: scheduledGatewayContextResolver,
       resolvePluginRegistry: params.resolvePluginRegistry,
