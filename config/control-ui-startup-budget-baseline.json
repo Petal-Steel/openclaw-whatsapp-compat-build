@@ -1,5 +1,5 @@
 {
-  "startupJsGzipBytes": 315852,
-  "reason": "Defer optional placement and sharing content; preserve idle decoration boundary (W-PERF-CHAT-BOOT-2)",
+  "startupJsGzipBytes": 316249,
+  "reason": "Defer placement and mobile sharing content; refreshed against main 2d4e8dea",
   "updatedAt": "2026-10-22"
 }
