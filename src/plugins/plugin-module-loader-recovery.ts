@@ -59,6 +59,7 @@ function createSourceModuleRecovery(
   bindInstance: (params: PluginInstanceModuleLoaderParams) => void,
 ): PluginModuleLoaderRecovery {
   let state: "available" | "bound" | "disposed" = "available";
+  let disposal: Promise<void> | undefined;
   return {
     bind(instance) {
       if (state !== "available") {
@@ -81,11 +82,12 @@ function createSourceModuleRecovery(
       });
       instance.sourceDigest = facts.sourceDigest;
     },
-    dispose() {
+    async dispose() {
       if (state === "available") {
         state = "disposed";
-        recovery.dispose();
+        disposal = recovery.disposeAsync();
       }
+      await disposal;
     },
   };
 }
