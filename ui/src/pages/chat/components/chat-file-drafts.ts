@@ -4,7 +4,6 @@ import { registerFilePreviewEnglish } from "../../../i18n/locales/en-file-previe
 import { formatUiError } from "../../../lib/format-error.ts";
 import { showToast } from "../../../lib/toast.ts";
 import type { FileSidebarContent } from "./chat-sidebar-content-types.ts";
-import { reviewFileDrafts } from "./file-draft-recovery-dialog-view.tsx";
 
 registerFilePreviewEnglish();
 
@@ -40,6 +39,10 @@ export async function reviewRetainedFileDrafts(target?: {
   }
   reviewingDrafts = true;
   try {
+    const { reviewFileDrafts } = await import("./file-draft-recovery-dialog-view.tsx");
+    if (target && !target.isCurrent()) {
+      return;
+    }
     await reviewFileDrafts(
       records.map(([key, record]) => ({
         name: record.name,

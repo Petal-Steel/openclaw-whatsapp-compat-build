@@ -219,6 +219,22 @@ it("retains dirty workspace content when the close confirmation cannot open", as
   }
 });
 
+it("does not open retained-draft review after its target retires during preparation", async () => {
+  const { file } = dirtyPreview(false);
+  const review = vi.spyOn(draftDialog, "reviewFileDrafts").mockResolvedValueOnce(undefined);
+  let current = true;
+  try {
+    const pending = reviewRetainedFileDrafts({ file, isCurrent: () => current });
+    current = false;
+    await pending;
+    expect(review).not.toHaveBeenCalled();
+    expect(readFileDraft(file)?.content).toBe("Unsaved notes");
+    expect(canReloadControlUiDocument()).toBe(false);
+  } finally {
+    setFileDraft(file, null);
+  }
+});
+
 it("keeps reload blocked and retries retained-draft review after preparation failure", async () => {
   const { file } = dirtyPreview(false);
   const review = vi
