@@ -7,13 +7,10 @@ import {
 import { shouldHandleNavigationClick } from "../../lib/navigation-click.ts";
 import type { Overlay } from "../overlay-lifecycle.ts";
 import { containsComposed } from "../overlay-registry.ts";
+import { MENU_FORM_CONTROL_SELECTOR } from "./menu-form-controls.ts";
 import type { MenuNavigationOptions, MenuRuntime } from "./menu-runtime.ts";
 
 export type { MenuNavigationOptions } from "./menu-runtime.ts";
-
-// Embedded menu triggers opt in explicitly; submenu items keep their native roving focus.
-export const MENU_FORM_CONTROL_SELECTOR =
-  ':is(input, textarea, select, [data-form-control], button, a[href]):not([role^="menuitem"]):not([aria-haspopup="menu"]:not([data-form-control]))';
 
 export type MenuBinding = {
   itemRef(): (element: HTMLElement) => void;

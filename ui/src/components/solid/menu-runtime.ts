@@ -11,7 +11,7 @@ import { listen } from "../../lib/reactive/listener.ts";
 import type { Overlay } from "../overlay-lifecycle.ts";
 import { containsComposed } from "../overlay-registry.ts";
 import { revealInScrollRegion } from "../scroll-state.ts";
-import { MENU_FORM_CONTROL_SELECTOR } from "./menu-machine.ts";
+import { MENU_FORM_CONTROL_SELECTOR } from "./menu-form-controls.ts";
 
 // Focus events use bubbling DOM names; all other listener names stay canonical.
 const normalize = (props: object) => {
