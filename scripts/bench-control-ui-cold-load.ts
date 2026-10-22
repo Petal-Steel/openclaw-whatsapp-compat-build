@@ -14,7 +14,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { loadavg } from "node:os";
 import path from "node:path";
 import { parseArgs } from "node:util";
-import { chromium, type Browser } from "playwright";
+import { chromium, type Browser, type Page } from "playwright";
 import { buildSandboxHostPath } from "../src/agents/sandbox-host.js";
 import { CONTROL_UI_BOOTSTRAP_CONFIG_ATTRIBUTE } from "../src/gateway/control-ui-bootstrap-contract.ts";
 import { captureSessionRowGeneration } from "../src/gateway/session-row-identity.js";
@@ -22,7 +22,7 @@ import { shareSidebarSessionRows } from "../src/gateway/session-row-presentation
 import { normalizeControlUiBuildInfo } from "../ui/src/build-info-normalizers.ts";
 import { isChatHistoryState } from "../ui/src/lib/protocol-validators.generated/history-state.js";
 import { createColdLoadProbeInitScript } from "../ui/src/test-helpers/control-ui-cold-load-probes.ts";
-import { createMockGatewayControls } from "../ui/src/test-helpers/control-ui-e2e-controls.ts";
+import type { MockGatewayWindow } from "../ui/src/test-helpers/control-ui-e2e-contract.ts";
 import {
   createControlUiMockBootstrapConfig,
   installControlUiMockBootstrapDocument,
@@ -512,7 +512,7 @@ async function readBundleBuildId(directory: string): Promise<string> {
     /globalThis\.OPENCLAW_CONTROL_UI_BUILD_INFO=(\{.*?\});<\/script>/su,
   )?.[1];
   if (!identity) {
-    throw new Error("Benchmarking requires a bundle with embedded build identity");
+    throw new Error("Prebuilt benchmarking requires a bundle with embedded build identity");
   }
   return normalizeControlUiBuildInfo(JSON.parse(identity)).buildId;
 }
@@ -528,19 +528,23 @@ const baseUrl = gatewayUrl?.origin ?? server!.baseUrl;
 const comparisonBundleDirs = values["compare-bundle-dir"].map((directory) =>
   path.resolve(directory),
 );
-const bundleBuildIds = [
-  buildId,
-  ...(await Promise.all(comparisonBundleDirs.map(readBundleBuildId))),
-];
 const parkedBaselineDir = path.join(artifactDir, "baseline-bundle");
 const bundleSlots = [parkedBaselineDir, ...comparisonBundleDirs];
 let activeBundle = 0;
-async function selectComparisonBundle(index: number) {
+async function selectComparisonBundle(index: number, page?: Page) {
   if (!comparisonBundleDirs.length || activeBundle === index) {
     return;
   }
   await server!.replaceBuild(bundleSlots[index]!, bundleSlots[activeBundle]!);
   activeBundle = index;
+  buildId = explicitBuildId ?? (await readBundleBuildId(bundleDir));
+  await page?.evaluate((id) => {
+    const gateway = (window as MockGatewayWindow).openclawControlUiE2eGateway;
+    if (!gateway) {
+      throw new Error("Mock Gateway is not installed");
+    }
+    gateway.setServerBuildId(id);
+  }, buildId);
 }
 const dashboardFont = values["dashboard-widget"]
   ? await readFile("ui/public/fonts/space-grotesk-latin.woff2")
@@ -632,7 +636,6 @@ try {
     permissions: ["local-network-access"],
   });
   const page = await context.newPage();
-  const mockGateway = createMockGatewayControls(page, fixture.selectedSessionKey, [], {});
   await page.addInitScript("globalThis.__name = (fn) => fn");
   await page.addInitScript(
     ({ bootRoute: measuredRoute }) => {
@@ -1121,8 +1124,7 @@ try {
     snapshotSaves.push(snapshotSave);
     for (let index = 1; index < bundleSlots.length; index++) {
       await restoreColdLoadWarmState(page, warmStorage);
-      await selectComparisonBundle(index);
-      await mockGateway.setServerBuildId(bundleBuildIds[index]!);
+      await selectComparisonBundle(index, page);
       await page.reload({ waitUntil: "domcontentloaded" });
       await settle();
       await expandSidebar();
@@ -1149,7 +1151,7 @@ try {
       await route.fallback();
     });
   }
-  await selectComparisonBundle(0);
+  await selectComparisonBundle(0, page);
   for (let run = 0; run < runs; run++) {
     const hostLoadAverage = loadavg();
     const cpuPhases: Record<string, ColdLoadCpuTables> = {};
@@ -1183,10 +1185,7 @@ try {
     if (!firstLoad) {
       await restoreColdLoadWarmState(page, warmStates[bundleIndex]!);
     }
-    await selectComparisonBundle(bundleIndex);
-    if (comparisonBundleDirs.length) {
-      await mockGateway.setServerBuildId(bundleBuildIds[bundleIndex]!);
-    }
+    await selectComparisonBundle(bundleIndex, page);
     runTransfer =
       sidebarRowTransfer === "delta" || (sidebarRowTransfer === "interleaved" && run % 2 === 1)
         ? "delta"
@@ -1510,8 +1509,17 @@ try {
         deltas: number;
         milliseconds: Record<string, number>;
       }> = [];
+      const streamingTrace: unknown[] = [];
+      collectedTrace = streamingTrace;
       if (cpuProfile) {
         await cdp.send("Profiler.start");
+      }
+      if (traced) {
+        await cdp.send("Tracing.start", {
+          categories:
+            "toplevel,blink.user_timing,devtools.timeline,disabled-by-default-devtools.timeline.stack,v8",
+          transferMode: "ReportEvents",
+        });
       }
       if (values["streaming-allocations"]) {
         await cdp.send("HeapProfiler.startSampling", {
@@ -1591,6 +1599,17 @@ try {
       }
       if (cpuProfile) {
         await recordCpu("streaming", (await cdp.send("Profiler.stop")).profile);
+      }
+      if (traced) {
+        const complete = new Promise<void>((resolve) => {
+          cdp.once("Tracing.tracingComplete", () => resolve());
+        });
+        await cdp.send("Tracing.end");
+        await complete;
+        await writeFile(
+          path.join(artifactDir, `run-${run + 1}.streaming.trace.json`),
+          JSON.stringify({ traceEvents: streamingTrace }),
+        );
       }
       streaming = {
         ...(await page.evaluate(() => Reflect.get(window, "__streamingReply").finish())),
