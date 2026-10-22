@@ -95,14 +95,19 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/openclaw-package-first" "$RUNNER_TEMP/openclaw-package-second"
-          corepack pnpm build:package
-          first_tgz="$(npm pack --pack-destination "$RUNNER_TEMP/openclaw-package-first" --silent)"
-          first_path="$RUNNER_TEMP/openclaw-package-first/$first_tgz"
+          package_name=openclaw-2026.10.5-whatsapp-compat.tgz
+          node scripts/package-openclaw-for-docker.mjs \
+            --pnpm-pack --allow-unreleased-changelog \
+            --output-dir "$RUNNER_TEMP/openclaw-package-first" \
+            --output-name "$package_name"
+          first_path="$RUNNER_TEMP/openclaw-package-first/$package_name"
           first_sha="$(sha256sum "$first_path" | cut -d ' ' -f 1)"
 
-          corepack pnpm build:package
-          second_tgz="$(npm pack --pack-destination "$RUNNER_TEMP/openclaw-package-second" --silent)"
-          second_path="$RUNNER_TEMP/openclaw-package-second/$second_tgz"
+          node scripts/package-openclaw-for-docker.mjs \
+            --skip-build --pnpm-pack --allow-unreleased-changelog \
+            --output-dir "$RUNNER_TEMP/openclaw-package-second" \
+            --output-name "$package_name"
+          second_path="$RUNNER_TEMP/openclaw-package-second/$package_name"
           second_sha="$(sha256sum "$second_path" | cut -d ' ' -f 1)"
           test "$first_sha" = "$second_sha"
           cp "$second_path" "$RUNNER_TEMP/openclaw-package.tgz"
