@@ -149,7 +149,8 @@ jobs:
             exit 1
           }
           node "$cli" --help >/dev/null
-          rg -q "admittedConfig\.channels" "$RUNNER_TEMP/openclaw-isolated/node_modules/openclaw/dist"
+          grep -R -F -q "admittedConfig.channels" \
+            "$RUNNER_TEMP/openclaw-isolated/node_modules/openclaw/dist"
 
       - name: Write build provenance
         shell: bash
