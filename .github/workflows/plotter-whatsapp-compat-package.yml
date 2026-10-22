@@ -143,7 +143,11 @@ jobs:
           npm install --prefix "$RUNNER_TEMP/openclaw-isolated" \
             --no-audit --no-fund "$RUNNER_TEMP/openclaw-package.tgz"
           cli="$RUNNER_TEMP/openclaw-isolated/node_modules/openclaw/openclaw.mjs"
-          test "$(node "$cli" --version)" = "2026.10.5"
+          cli_version="$(node "$cli" --version)"
+          [[ "$cli_version" == "OpenClaw 2026.10.5 ("* ]] || {
+            echo "Unexpected packaged CLI version output: $cli_version" >&2
+            exit 1
+          }
           node "$cli" --help >/dev/null
           rg -q "admittedConfig\.channels" "$RUNNER_TEMP/openclaw-isolated/node_modules/openclaw/dist"
 
