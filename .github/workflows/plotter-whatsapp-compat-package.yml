@@ -166,6 +166,7 @@ jobs:
             "upstreamFixCommit": "2c760972446b4855007af0fcb8baf14853852546",
             "node": "$(node --version)",
             "pnpm": "$(corepack pnpm --version)",
+            "npm": "$(npm --version)",
             "packageBuilder": "node scripts/package-openclaw-for-docker.mjs --pnpm-pack --allow-unreleased-changelog",
             "tarNormalization": "GNU tar sorted entries, fixed SOURCE_DATE_EPOCH mtime, uid/gid 0; gzip -n",
             "buildTimestampUtc": "$OPENCLAW_BUILD_TIMESTAMP",
