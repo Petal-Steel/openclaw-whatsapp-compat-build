@@ -9,13 +9,13 @@ import type {
   ChatSessionSharingModePresentation,
 } from "./chat-session-sharing-mobile.tsx";
 import type { ChatSessionSharingOptionsProps } from "./chat-session-sharing-options.tsx";
+import type { PreparedChatSessionSharing } from "./chat-session-sharing-shared.tsx";
 import {
   canManageChatSessionSharing,
   CHAT_SESSION_SHARING_DESCRIPTION_KEYS,
   ChatSessionSharingModeIcon,
   projectChatSessionSharingRoster,
   createChatSessionSharingPresentation,
-  type PreparedChatSessionSharing,
 } from "./chat-session-sharing-shared.tsx";
 
 registerEnglishCatalog(registerChatSessionEnglish);

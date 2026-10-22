@@ -56,10 +56,10 @@ const controlUiPerformanceBudgets = {
   startupJsRequests: 9,
   chatBootJsRequests: 27,
   newBootJsRequests: 21,
-  // Deferred bodies: 1,415,402 B Chat and 933,175 B New Session.
+  // Deferred New Session bodies and native preloads: 1,421,844 B Chat and 924,875 B New Session.
   // Preserve each surface's relative headroom over the measured main baseline.
-  chatBootJsGzipBytes: 1_470_125,
-  newBootJsGzipBytes: 946_974,
+  chatBootJsGzipBytes: 1_476_815,
+  newBootJsGzipBytes: 938_550,
   startupCssRequests: 1,
   // Solid 2 action/optimistic runtime adoption; offset tracked by HF-STARTUP-BUDGET.
   startupJsGzipBytes: 325_081,
