@@ -1567,7 +1567,6 @@
   "ui/src/pages/chat/chat-pane-mcp-app.ts",
   "ui/src/pages/chat/chat-pane-model-control.tsx",
   "ui/src/pages/chat/chat-pane-native-session-actions.ts",
-  "ui/src/pages/chat/chat-pane-panel-header-actions.tsx",
   "ui/src/pages/chat/chat-pane-panel-shortcuts.ts",
   "ui/src/pages/chat/chat-pane-placement.ts",
   "ui/src/pages/chat/chat-pane-presence.ts",
