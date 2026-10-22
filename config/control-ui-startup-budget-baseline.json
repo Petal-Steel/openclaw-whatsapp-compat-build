@@ -1,5 +1,5 @@
 {
   "startupJsGzipBytes": 315696,
-  "reason": "Keep the stricter startup baseline after runtime English deferrals; measured head 315926 B",
+  "reason": "Keep the stricter startup baseline after closed dialog deferrals; measured head 315934 B",
   "updatedAt": "2026-10-22"
 }
