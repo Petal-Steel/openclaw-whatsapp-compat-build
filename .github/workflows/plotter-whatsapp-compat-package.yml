@@ -27,7 +27,7 @@ jobs:
       - name: Checkout CI harness and compatibility source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           persist-credentials: false
 
       - name: Pin package source to the compatibility commit
@@ -36,8 +36,13 @@ jobs:
         run: |
           set -euo pipefail
           patch_commit=67bf8de95628ad8495e16dd7973d072a79f5baf8
+          patch_branch=plotter/whatsapp-durable-handoff-compat
+          git fetch --depth=1 origin \
+            +refs/tags/v2026.10.5:refs/tags/v2026.10.5
+          git fetch --depth=2 origin \
+            "+refs/heads/${patch_branch}:refs/remotes/origin/${patch_branch}"
           base_commit="$(git rev-parse 'v2026.10.5^{commit}')"
-          git merge-base --is-ancestor "$patch_commit" HEAD
+          test "$(git rev-parse "refs/remotes/origin/${patch_branch}")" = "$patch_commit"
           test "$(git rev-parse "${patch_commit}^")" = "$base_commit"
           test "$(git diff-tree --no-commit-id --name-only -r "$patch_commit" | wc -l)" -eq 17
           git checkout --detach "$patch_commit"
