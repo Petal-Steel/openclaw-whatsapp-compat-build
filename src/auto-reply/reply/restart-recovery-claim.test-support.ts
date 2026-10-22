@@ -4,6 +4,8 @@ import { createReplyOperation, type ReplyOperation } from "../../sessions/sessio
 import {
   acquireReplyOperationSessionActor,
   getReplyOperationSessionTarget,
+  lifecycleAdmissionByOperation,
+  type ReplyOperationAdmission,
 } from "../../sessions/session-controller.state.js";
 import { waitForReplyRunSuccessorAdmission } from "../../sessions/session-controller.wait.js";
 import { bindReplyAdmissionRelease } from "./reply-turn-admission-lifecycle.js";
@@ -19,6 +21,7 @@ export function createReplyRecoveryActorFixture(params: {
   let bound:
     | Promise<{
         operation: ReplyOperation;
+        operationAdmission: ReplyOperationAdmission | undefined;
         release: () => Promise<void>;
       }>
     | undefined;
@@ -51,6 +54,7 @@ export function createReplyRecoveryActorFixture(params: {
         const admittedOperation = operation;
         return {
           operation,
+          operationAdmission: lifecycleAdmissionByOperation.get(operation),
           release: async () => {
             const target = getSessionControllerEntryForOperation(admittedOperation).target;
             admittedOperation.complete();
