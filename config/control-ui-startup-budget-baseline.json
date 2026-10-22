@@ -1,5 +1,5 @@
 {
-  "startupJsGzipBytes": 315696,
-  "reason": "Keep the stricter startup baseline after runtime English deferrals; measured head 315926 B",
+  "startupJsGzipBytes": 315967,
+  "reason": "Preserve the corrected main startup baseline; deferred menu navigation measures 315928 B (39 B lower), with no added startup requests.",
   "updatedAt": "2026-10-22"
 }
