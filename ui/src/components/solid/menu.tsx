@@ -9,6 +9,7 @@ import { createOverlay, type Overlay } from "../overlay-lifecycle.ts";
 import { containsComposed, registryFor } from "../overlay-registry.ts";
 import { Icon } from "./icon.tsx";
 import { MENU_FORM_CONTROL_SELECTOR, useMenuMachine, type MenuBinding } from "./menu-machine.ts";
+import { MenuNavigationError } from "./menu-navigation-error.tsx";
 import { useOverlayControl } from "./overlay-control.ts";
 import { retainShadowStyles } from "./shadow-styles.ts";
 import overlayStyles from "./overlay.css?inline";
@@ -289,7 +290,7 @@ export function Menu(props: BranchProps): JSX.Element {
     }
   };
   onSettled(() => overlay.bindSurface(surface));
-  const binding = useMenuMachine(overlay, direction, activate, initialIdentity.binding?.service, {
+  const binding = useMenuMachine(overlay, direction, activate, initialIdentity.binding, {
     ids: { trigger: initialIdentity.triggerId },
     pointerFocus: () => props.pointerFocus ?? "menu",
   });
@@ -569,6 +570,7 @@ export function Menu(props: BranchProps): JSX.Element {
   );
   const body = () => (
     <>
+      <MenuNavigationError binding={binding} />
       {props.children}
       {renderEntries(() => props.items)}
     </>
@@ -595,9 +597,8 @@ export function Menu(props: BranchProps): JSX.Element {
         aria-expanded={opened() ? "true" : "false"}
         data-highlighted={
           initialIdentity.binding &&
-          (initialIdentity.binding.read().highlightedValue ===
-            props.triggerAttributes?.["data-value"] ||
-            initialIdentity.binding.read().highlightedValue === initialIdentity.triggerId)
+          (initialIdentity.binding.highlightedValue() === props.triggerAttributes?.["data-value"] ||
+            initialIdentity.binding.highlightedValue() === initialIdentity.triggerId)
             ? ""
             : undefined
         }
