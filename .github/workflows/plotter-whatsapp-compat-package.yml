@@ -109,9 +109,31 @@ jobs:
             --output-name "$package_name"
           second_path="$RUNNER_TEMP/openclaw-package-second/$package_name"
           second_sha="$(sha256sum "$second_path" | cut -d ' ' -f 1)"
-          test "$first_sha" = "$second_sha"
-          cp "$second_path" "$RUNNER_TEMP/openclaw-package.tgz"
-          echo "OPENCLAW_PACKAGE_SHA256=$second_sha" >> "$GITHUB_ENV"
+          echo "Canonical pack hashes: first=$first_sha second=$second_sha"
+
+          normalize_package() {
+            local input="$1" output_dir="$2" extracted="$2/extracted" output="$2/openclaw-normalized.tgz"
+            mkdir -p "$extracted"
+            tar -xzf "$input" -C "$extracted"
+            test -d "$extracted/package"
+            tar --sort=name --mtime="@${SOURCE_DATE_EPOCH}" \
+              --owner=0 --group=0 --numeric-owner -cf - \
+              -C "$extracted" package | gzip -n > "$output"
+            printf '%s\n' "$output"
+          }
+
+          first_normalized="$(normalize_package "$first_path" "$RUNNER_TEMP/openclaw-package-first-normalized")"
+          second_normalized="$(normalize_package "$second_path" "$RUNNER_TEMP/openclaw-package-second-normalized")"
+          first_normalized_sha="$(sha256sum "$first_normalized" | cut -d ' ' -f 1)"
+          second_normalized_sha="$(sha256sum "$second_normalized" | cut -d ' ' -f 1)"
+          echo "Normalized package hashes: first=$first_normalized_sha second=$second_normalized_sha"
+          if [[ "$first_normalized_sha" != "$second_normalized_sha" ]]; then
+            diff -qr "$RUNNER_TEMP/openclaw-package-first-normalized/extracted/package" \
+              "$RUNNER_TEMP/openclaw-package-second-normalized/extracted/package" | head -n 40 || true
+            exit 1
+          fi
+          cp "$second_normalized" "$RUNNER_TEMP/openclaw-package.tgz"
+          echo "OPENCLAW_PACKAGE_SHA256=$second_normalized_sha" >> "$GITHUB_ENV"
 
       - name: Install and smoke-test the isolated package
         shell: bash
@@ -144,6 +166,8 @@ jobs:
             "upstreamFixCommit": "2c760972446b4855007af0fcb8baf14853852546",
             "node": "$(node --version)",
             "pnpm": "$(corepack pnpm --version)",
+            "packageBuilder": "node scripts/package-openclaw-for-docker.mjs --pnpm-pack --allow-unreleased-changelog",
+            "tarNormalization": "GNU tar sorted entries, fixed SOURCE_DATE_EPOCH mtime, uid/gid 0; gzip -n",
             "buildTimestampUtc": "$OPENCLAW_BUILD_TIMESTAMP",
             "sourceDateEpoch": "$SOURCE_DATE_EPOCH",
             "packageSha256": "$OPENCLAW_PACKAGE_SHA256"
